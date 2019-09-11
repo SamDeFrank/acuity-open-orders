@@ -102,3 +102,7 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+#project specific stuff
+settings/settings.py
+new_TSV
