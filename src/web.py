@@ -9,6 +9,7 @@ def fetchTSV(username, password):
   driver.get("https://isupplier12.acuitybrandslighting.net/OA_HTML/AppsLocalLogin.jsp")
 
   #login
+  print('Logging in')
   user = driver.find_element_by_name("usernameField")
   pswrd = driver.find_element_by_name("passwordField")
   user.clear()
@@ -18,6 +19,7 @@ def fetchTSV(username, password):
   submit_button = driver.find_element_by_xpath("//*[@id=\"ButtonBox\"]/button[1]")
   submit_button.click()
 
+  print('Navigating website')
   #Wait for 'Delivery Schedule' link to exist, then click it.
   delivery_schedule = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.ID, "PosHpgGenericUrl3")))
   delivery_schedule.click()
@@ -28,8 +30,9 @@ def fetchTSV(username, password):
 
   #wait for data to populate on page.
   table_row = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '//*[@id="DelivSchedTblRN:Content"]/tbody/tr[3]')))
-
+  
   #Click 'export' button.
+  print('Requesting new tsv file')
   driver.find_element_by_id("ExportBtn").click()
 
   return True

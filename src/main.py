@@ -16,12 +16,20 @@ INCLUDE_BALANCE = settings['include_computed_balance']
 downloading = web.fetchTSV(USERNAME, PASSWORD)
 
 #wait for file to download
+print("Waiting for file to finish downloading")
 while downloading:
     if os.path.isfile(TSV_PATH):
-        fetching = False
+        downloading = False
+        print("Download complete")
+    else:
+        pass
 
 #Parse data from tsv file into excel format
+print("Parsing data into Excel file")
 excel_file_name = data.main(TSV_PATH, EXCEL_COLUMNS, INCLUDE_BALANCE, SAVE_PATH)
+print("Done!")
+print("")
+print("Opening new file with Excel")
 
 #Remove file from downloads folder
 os.remove(TSV_PATH)
