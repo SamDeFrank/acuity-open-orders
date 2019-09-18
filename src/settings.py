@@ -5,6 +5,6 @@ settings = {
     'save_path': r'C:\Users\Mary\Documents\Acuity Open Orders',
     'include_computed_balance': True,
     'custom_location_order': [],
-    'download_path': '',
-    'dev_path': '../new_TSV/export.tsv'
+    'download_path': r'C:\Users\Mary\Downloads\export.tsv',
+    'dev_path': ''
 }

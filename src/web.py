@@ -17,19 +17,19 @@ def fetchTSV(username, password):
   pswrd.send_keys(password)
   submit_button = driver.find_element_by_xpath("//*[@id=\"ButtonBox\"]/button[1]")
   submit_button.click()
-  
 
-
-
-  #click on the "Delivery Schedule" link
-  try:
-    delivery_schedule = WebDriverWait(driver, 10).Until(
-      EC.element_to_be_clickable((By.ID, "PosHpgGenericUrl3"))
-    )
-  finally:
-    pass
-
+  #Wait for 'Delivery Schedule' link to exist, then click it.
+  delivery_schedule = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.ID, "PosHpgGenericUrl3")))
   delivery_schedule.click()
+  
+  #Wait for 'GO' button to exist, then click it.
+  search = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="DelivSchedSrchRN"]/tbody/tr[4]/td/table/tbody/tr/td/div/div[2]/table/tbody/tr[2]/td/table/tbody/tr/td[2]/button[1]')))
+  search.click()
 
+  #wait for data to populate on page.
+  table_row = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '//*[@id="DelivSchedTblRN:Content"]/tbody/tr[3]')))
 
-fetchTSV('frank@belairmfg.com', 'BelAir3525!2')
+  #Click 'export' button.
+  driver.find_element_by_id("ExportBtn").click()
+
+  return True
