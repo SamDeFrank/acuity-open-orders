@@ -6,7 +6,6 @@ from openpyxl.styles import Font
 
 OUTPUT_FILENAME = "\%s Open Orders.xlsx" % datetime.date.today()
 
-
 def main(tsv_path, cols, include_balance, save_path): 
   
   data_list = []
