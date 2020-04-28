@@ -1,4 +1,5 @@
 import datetime
+import borders
 from settings import settings
 from config import config
 from openpyxl import Workbook
@@ -61,6 +62,15 @@ def main(tsv_path, cols, include_balance, save_path):
 
   header = config['styles']['header']
 
+  # set column widths
+  ws.column_dimensions["A"].width = 15.14
+  ws.column_dimensions["B"].width = 10.00
+  ws.column_dimensions["C"].width = 06.75
+  ws.column_dimensions["D"].width = 07.71
+  ws.column_dimensions["E"].width = 08.43
+  ws.column_dimensions["F"].width = 12.29
+
+  #the big loop
   for location in locations:
     sz = len(po_by_ship_to[location])
 
@@ -70,6 +80,7 @@ def main(tsv_path, cols, include_balance, save_path):
       ws['A%s' % row].font = Font(size=header['size'], bold=header['bold'])
       ws['A%s' % row] = location
 
+      # insert 'created on' date
       if row == 1:
         ws["I1"] = "Created On:   {}".format(datetime.date.today().strftime('%m-%d-%Y'))
         ws["I1"].alignment = Alignment(horizontal="right", vertical="top")
@@ -77,13 +88,34 @@ def main(tsv_path, cols, include_balance, save_path):
       row_offset += 1
 
       for excelRow in range(1, sz+1):
-        for excelCol in range(1, len(cols) + 1):
-          cell_value = po_by_ship_to[location][excelRow-1][cols[excelCol-1]]
-          if cols[excelCol-1] == "Quantity Ordered" or cols[excelCol-1] == "Quantity Received":
-            cell_value = int(cell_value)
-          ws.cell(row=excelRow + row_offset, column=excelCol, value=cell_value)
-      
+
+        # add gridlines to the right of the page for handwritten notes on print out
+        if settings['gridlines']:
+          ws.cell(row=excelRow + row_offset, column=7).border = borders.underline
+          ws.cell(row=excelRow + row_offset, column=8).border = borders.mid
+          ws.cell(row=excelRow + row_offset, column=9).border = borders.underline
+
+        #begin writing the business data to sheet   
+        for excelCol in range(1, len(cols) + 1):    
+          cell = ws.cell(row=excelRow + row_offset, column=excelCol)
+          value = po_by_ship_to[location][excelRow-1][cols[excelCol-1]]
+
+          # convert q ordered and q received to integers
+          if cols[excelCol-1] in ["Quantity Ordered", "Quantity Received"]:             
+            value = int(value)
+
+          # right justify date
+          if cols[excelCol-1] == "Need-By Date":
+            cell.alignment = Alignment(horizontal="right")
+
+          # add horizontal gridlines
+          if settings['gridlines']:
+            cell.border = borders.underline
+          
+          cell.value = value
+          
       row_offset += sz + 1
+
   wb.save('{}{}'.format(save_path, OUTPUT_FILENAME))
   return OUTPUT_FILENAME
 
