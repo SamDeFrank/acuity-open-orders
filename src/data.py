@@ -2,7 +2,7 @@ import datetime
 from settings import settings
 from config import config
 from openpyxl import Workbook
-from openpyxl.styles import Font
+from openpyxl.styles import Font, Alignment
 
 OUTPUT_FILENAME = "\\%s Open Orders.xlsx" % datetime.date.today()
 
@@ -69,6 +69,10 @@ def main(tsv_path, cols, include_balance, save_path):
       ws.row_dimensions[row].height = 30
       ws['A%s' % row].font = Font(size=header['size'], bold=header['bold'])
       ws['A%s' % row] = location
+
+      if row == 1:
+        ws["I1"] = "Created On:   {}".format(datetime.date.today().strftime('%m-%d-%Y'))
+        ws["I1"].alignment = Alignment(horizontal="right", vertical="top")
       
       row_offset += 1
 
