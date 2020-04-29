@@ -6,17 +6,6 @@ from openpyxl import Workbook
 from openpyxl.styles import Font, Alignment
 
 OUTPUT_FILENAME = "\\%s Open Orders.xlsx" % datetime.date.today()
-NUMBERS_TO_LETTERS = {
-  "1": "A",
-  "2": "B",
-  "3": "C",
-  "4": "D",
-  "5": "E",
-  "6": "F",
-  "7": "G",
-  "8": "H",
-  "9": "I"
-}
 
 def valid_date(po):
   '''This function is used as the 'key' when sorting purchase orders by due date'''    
@@ -109,12 +98,10 @@ def main(tsv_path, cols, include_balance, save_path):
         #begin writing the business data to sheet   
         for excelCol in range(1, len(cols) + 1):    
           col_name = cols[excelCol-1]
-
           cell = ws.cell(row=excelRow + row_offset, column=excelCol)
           value = po_by_ship_to[location][excelRow-1][col_name]
           
-
-          # convert q ordered and q received to integers
+          # convert q ordered and q received values to integers
           if col_name in ["Quantity Ordered", "Quantity Received"]:             
             value = int(value)
 
@@ -124,8 +111,7 @@ def main(tsv_path, cols, include_balance, save_path):
 
           # generate 'balance due' formula
           if col_name == "Balance Due":
-            current_row_num = excelRow + row_offset
-            value = "=C{row} - D{row}".format(row=current_row_num)
+            value = "=C{row} - D{row}".format(row=excelRow + row_offset)
 
           # add horizontal gridlines
           if settings['gridlines']:
