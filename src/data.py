@@ -1,26 +1,32 @@
 import datetime
 import borders
-from settings import settings
-from config import config
+from utils import settings
 from openpyxl import Workbook
 from openpyxl.styles import Font, Alignment
 
 OUTPUT_FILENAME = "\\%s Open Orders.xlsx" % datetime.date.today()
+SHIP_TOs        = ['Fishers', 'Crawfordsville', 'Des Plaines', 'MPF', 'GPF', 'SEAC']
+COLUMN_NAMES    = ["Item Number", "PO Number", "Quantity Ordered", "Quantity Received", "Balance Due", "Need-By Date"]
+
+header_style = {
+  'size': 24,
+  'bold': True
+}
 
 def valid_date(po):
   '''This function is used as the 'key' when sorting purchase orders by due date'''    
   try:
     output = datetime.datetime.strptime(po['Need-By Date'].split()[0], '%d-%b-%Y')
   except ValueError:
+    # if the acuity buyer forgets to put a due date on their PO, sort it as if its date were january 1st of 2000. but leave the cell blank
     output = datetime.datetime.strptime("01-jan-2000", '%d-%b-%Y')
 
   return output
 
-def main(tsv_path, cols, include_balance, save_path): 
+def main(tsv_path, save_path): 
   
   data_list = []
   po_by_ship_to = {}
-  cols = cols[:-1] + ['Balance Due'] + cols[-1:] if include_balance else cols
   
   with open(tsv_path, 'r') as file:
     raw_data_list = [row.split("\t") for row in file.read().split("\t\n")] 
@@ -41,11 +47,11 @@ def main(tsv_path, cols, include_balance, save_path):
     if len(po['Need-By Date']) > 0:
       po['Need-By Date'] = datetime.datetime.strptime(po['Need-By Date'].split(" ")[0], '%d-%b-%Y').date().strftime('%m-%d-%Y')
 
-    if include_balance:
-      po['Balance Due'] = int(po['Quantity Ordered']) - int(po['Quantity Received'])
+
+    po['Balance Due'] = int(po['Quantity Ordered']) - int(po['Quantity Received'])
 
     #resolve ship-to location based on whats in the data. eg: both 'P1-CRAWFORDSVILLE' and 'P2-CRAWFORDSVILLE' are grouped under 'Crawfordsville'
-    ship_to = [loc for loc in config['ship_to_locations'] if loc.upper() in po['Ship-To Location'].upper()][0]
+    ship_to = [loc for loc in SHIP_TOs if loc.upper() in po['Ship-To Location'].upper()][0]
 
     if ship_to in po_by_ship_to.keys():
       po_by_ship_to[ship_to].append(po)
@@ -58,9 +64,7 @@ def main(tsv_path, cols, include_balance, save_path):
   wb = Workbook()
   ws = wb.active
   row_offset = 0
-  locations = settings['custom_location_order'] if len(settings['custom_location_order']) > 0 else sorted(po_by_ship_to.keys())
-
-  header = config['styles']['header']
+  locations = sorted(po_by_ship_to.keys())
 
   # set column widths
   ws.column_dimensions["A"].width = 15.14
@@ -77,7 +81,7 @@ def main(tsv_path, cols, include_balance, save_path):
     if(sz > 0):
       row = 1 + row_offset
       ws.row_dimensions[row].height = 30
-      ws['A%s' % row].font = Font(size=header['size'], bold=header['bold'])
+      ws['A%s' % row].font = Font(size=header_style['size'], bold=header_style['bold'])
       ws['A%s' % row] = location
 
       # insert 'created on' date
@@ -96,8 +100,8 @@ def main(tsv_path, cols, include_balance, save_path):
           ws.cell(row=excelRow + row_offset, column=9).border = borders.underline
 
         #begin writing the business data to sheet   
-        for excelCol in range(1, len(cols) + 1):    
-          col_name = cols[excelCol-1]
+        for excelCol in range(1, len(COLUMN_NAMES) + 1):    
+          col_name = COLUMN_NAMES[excelCol-1]
           cell = ws.cell(row=excelRow + row_offset, column=excelCol)
           value = po_by_ship_to[location][excelRow-1][col_name]
           
@@ -127,5 +131,5 @@ def main(tsv_path, cols, include_balance, save_path):
  
 if __name__ == "__main__":
   import os
-  main(settings['dev_path'], config['include_columns'], True, settings['save_path'])
+  main(settings['dev_path'], settings['save_path'])
   os.system(r'start "{}" "{}{}"'.format(settings['excel_path'], settings['save_path'], OUTPUT_FILENAME))
