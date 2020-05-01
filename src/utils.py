@@ -8,9 +8,9 @@ def load_user_settings():
   with open(filename, 'r') as file:
     settings = dict([x.split(":", 1) for x in file.read().strip().split("\n")])
 
-  for k in settings:
-    settings[k] = settings[k].strip()
-  print("loading settings")
+    for k in settings:
+     settings[k] = settings[k].strip()
+
   return settings
 
 settings = load_user_settings()
