@@ -1,8 +1,8 @@
 import datetime
-import borders
 from utils import settings
 from openpyxl import Workbook
 from openpyxl.styles import Font, Alignment
+from openpyxl.styles.borders import Border, Side
 
 OUTPUT_FILENAME = "\\%s Open Orders.xlsx" % datetime.date.today()
 SHIP_TOs        = ['Fishers', 'Crawfordsville', 'Des Plaines', 'MPF', 'GPF', 'SEAC']
@@ -12,6 +12,11 @@ header_style = {
   'size': 24,
   'bold': True
 }
+
+borders = {
+  'mid': Border(left=Side(style='thin'), right=Side(style='thin'), bottom=Side(style='thin')),
+  'underline': Border(bottom=Side(style='thin'))
+} 
 
 def valid_date(po):
   '''This function is used as the 'key' when sorting purchase orders by due date'''    
@@ -95,9 +100,9 @@ def main(tsv_path, save_path):
 
         # add gridlines to the right of the page for handwritten notes on print out
         if settings['gridlines']:
-          ws.cell(row=excelRow + row_offset, column=7).border = borders.underline
-          ws.cell(row=excelRow + row_offset, column=8).border = borders.mid
-          ws.cell(row=excelRow + row_offset, column=9).border = borders.underline
+          ws.cell(row=excelRow + row_offset, column=7).border = borders['underline']
+          ws.cell(row=excelRow + row_offset, column=8).border = borders['mid']
+          ws.cell(row=excelRow + row_offset, column=9).border = borders['underline']
 
         #begin writing the business data to sheet   
         for excelCol in range(1, len(COLUMN_NAMES) + 1):    
@@ -119,7 +124,7 @@ def main(tsv_path, save_path):
 
           # add horizontal gridlines
           if settings['gridlines']:
-            cell.border = borders.underline
+            cell.border = borders['underline']
           
           cell.value = value
           
