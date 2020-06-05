@@ -1,7 +1,9 @@
 import os
 import data
 import web
-from utils import settings
+import utils
+
+settings = utils.load_user_settings()
 
 USERNAME        = settings['username']
 PASSWORD        = settings['password']
@@ -22,11 +24,14 @@ while downloading:
         pass
 
 #Parse data from tsv file into excel format
-print("Parsing data into Excel file")
-excel_file_name = data.main(TSV_PATH, SAVE_PATH)
-print("Done!")
-print("")
-print("Opening new file with Excel")
+# print("Parsing data into Excel file")
+# excel_file_name = data.main(TSV_PATH, SAVE_PATH)
+# print("Done!")
+# print("")
+# print("Opening new file with Excel")
+
+#check for most recent file here
+
 
 #Remove file from downloads folder
 os.remove(TSV_PATH)

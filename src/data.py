@@ -18,8 +18,9 @@ borders = {
   'underline': Border(bottom=Side(style='thin'))
 } 
 
+
 def valid_date(po):
-  '''This function is used as the 'key' when sorting purchase orders by due date'''    
+  '''Used as 'key' when sorting purchase orders by due date'''    
   try:
     output = datetime.datetime.strptime(po['Need-By Date'].split()[0], '%d-%b-%Y')
   except ValueError:
@@ -28,12 +29,12 @@ def valid_date(po):
 
   return output
 
-def main(tsv_path, save_path): 
-  
+
+def load_tsv(path):
   data_list = []
   po_by_ship_to = {}
   
-  with open(tsv_path, 'r') as file:
+  with open(path, 'r') as file:
     raw_data_list = [row.split("\t") for row in file.read().split("\t\n")] 
   
   for i in raw_data_list:
@@ -62,6 +63,14 @@ def main(tsv_path, save_path):
       po_by_ship_to[ship_to].append(po)
     else:
       po_by_ship_to[ship_to] = [po]
+  
+  return po_by_ship_to
+
+
+def main(tsv_path, save_path): 
+  
+  orders = load_tsv(tsv_path)
+  
   #------------------------------------------------------------
   #----------------------BEGIN EXCEL WORK----------------------
   #------------------------------------------------------------
@@ -69,7 +78,7 @@ def main(tsv_path, save_path):
   wb = Workbook()
   ws = wb.active
   row_offset = 0
-  locations = sorted(po_by_ship_to.keys())
+  locations = sorted(orders.keys())
 
   # set column widths
   ws.column_dimensions["A"].width = 15.14
@@ -81,7 +90,7 @@ def main(tsv_path, save_path):
 
   #the big loop
   for location in locations:
-    sz = len(po_by_ship_to[location])
+    sz = len(orders[location])
 
     if(sz > 0):
       row = 1 + row_offset
@@ -108,7 +117,7 @@ def main(tsv_path, save_path):
         for excelCol in range(1, len(COLUMN_NAMES) + 1):    
           col_name = COLUMN_NAMES[excelCol-1]
           cell = ws.cell(row=excelRow + row_offset, column=excelCol)
-          value = po_by_ship_to[location][excelRow-1][col_name]
+          value = orders[location][excelRow-1][col_name]
           
           # convert q ordered and q received values to integers
           if col_name in ["Quantity Ordered", "Quantity Received"]:             

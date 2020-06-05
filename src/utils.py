@@ -13,4 +13,12 @@ def load_user_settings():
 
   return settings
 
-settings = load_user_settings()
+def name_this_later():
+  today = datetime.date.today()
+  last_monday = today - datetime.timedelta(days=today.weekday())
+
+  delta = today - last_monday
+
+  date_list = [base - datetime.timedelta(days=x) for x in range(delta.days)]
+
+  print(date_list)
