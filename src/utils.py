@@ -1,4 +1,5 @@
 import os
+import datetime
 
 dirname = os.path.dirname(__file__)
 filename = os.path.join(dirname, 'settings.txt')
@@ -13,12 +14,18 @@ def load_user_settings():
 
   return settings
 
-def name_this_later():
+def current_report(save_path):
   today = datetime.date.today()
   last_monday = today - datetime.timedelta(days=today.weekday())
 
   delta = today - last_monday
 
-  date_list = [base - datetime.timedelta(days=x) for x in range(delta.days)]
+  date_list = [today - datetime.timedelta(days=x) for x in range(delta.days + 1)]
+  filename_list = [f"\\{x.strftime('%Y-%m-%d')} Open Orders.xlsx" for x in date_list]
 
-  print(date_list)
+  for k in filename_list:
+    path = save_path + k
+    if os.path.isfile(path):
+      return path
+  
+  return 0

@@ -15,26 +15,35 @@ EXCEL_PATH      = settings['excel_path']
 downloading = web.fetchTSV(USERNAME, PASSWORD)
 
 #wait for file to download
-print("Waiting for file to finish downloading")
+print("Waiting for file to finish downloading\n")
 while downloading:
     if os.path.isfile(TSV_PATH):
         downloading = False
-        print("Download complete")
+        print("Download complete\n")
     else:
         pass
 
-#Parse data from tsv file into excel format
-# print("Parsing data into Excel file")
-# excel_file_name = data.main(TSV_PATH, SAVE_PATH)
-# print("Done!")
-# print("")
-# print("Opening new file with Excel")
+file_to_update = utils.current_report(SAVE_PATH)
 
-#check for most recent file here
+
+if file_to_update != 0:
+    #update current file here
+    excel_file_name = data.update(TSV_PATH, file_to_update, settings)
+    
+    os.system(r'start "{}" "{}"'.format(EXCEL_PATH, excel_file_name))
+else:
+    # Parse data from tsv file into excel format
+    print("Parsing data into Excel file\n")
+    excel_file_name = data.create(TSV_PATH, SAVE_PATH, settings)
+    print("Done!\n")
+    print("Opening new file with Excel")
+
+    #Open file in excel
+    os.system(r'start "{}" "{}"'.format(EXCEL_PATH, SAVE_PATH + excel_file_name))
+
 
 
 #Remove file from downloads folder
 os.remove(TSV_PATH)
 
-#Open file in excel
-os.system(r'start "{}" "{}"'.format(EXCEL_PATH, SAVE_PATH + excel_file_name))
+
