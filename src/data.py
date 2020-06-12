@@ -158,6 +158,9 @@ def write(wb, orders, created_on, update, settings):
   ws.column_dimensions["E"].width = 08.43
   ws.column_dimensions["F"].width = 12.29
 
+  ws.merge_cells('G1:I1')
+  ws["I1"].alignment = Alignment(horizontal="right", vertical="top", wrap_text=True)
+
   #the big loop
   for location in locations:
     sz = len(orders[location])
@@ -174,7 +177,6 @@ def write(wb, orders, created_on, update, settings):
         if update:
           date_string += "\nUpdated On:    {}".format(datetime.date.today().strftime('%m-%d-%Y'))
         ws["I1"] = date_string
-        ws["I1"].alignment = Alignment(horizontal="right", vertical="top")
 
       row_offset += 1
 
