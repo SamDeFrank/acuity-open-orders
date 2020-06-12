@@ -48,7 +48,7 @@ def valid_date(po):
   return output
 
 def status(fill, font):
-  """assignes status to row based on the current style of the cell"""
+  """assignes status to order based on the current style of the cell"""
   if font.strike:
     return "closed"
   
@@ -75,6 +75,7 @@ def compare(existing_orders, new_orders):
       if po['info']['PO Number'] not in existing_orders['po_numbers']:
         if ship_to not in locations_to_sort:
           locations_to_sort.append(ship_to)
+        po['status'] = "new"
         updated_orders[ship_to].append(po)
 
 
@@ -116,7 +117,7 @@ def load_tsv(path):
     #trim unnecessary data from each order
     order = {k:v for (k,v) in po.items() if k in COLUMN_NAMES}
 
-    orders[location].append({'info': order, 'status': 'new'})
+    orders[location].append({'info': order, 'status': 'open'})
     po_numbers[order["PO Number"]] = True
 
   return {'orders': orders, 'po_numbers': po_numbers}
@@ -125,7 +126,7 @@ def load_xlsx(path):
   wb = load_workbook(filename = path)
   ws = wb.active
   location = ""
-  orders = orders = {i: [] for i in SHIP_TOs}
+  orders = {i: [] for i in SHIP_TOs}
   po_numbers = {}
   
   for row in ws:
@@ -159,7 +160,7 @@ def write(wb, orders, created_on, update, settings):
   ws.column_dimensions["F"].width = 12.29
 
   ws.merge_cells('G1:I1')
-  ws["I1"].alignment = Alignment(horizontal="right", vertical="top", wrap_text=True)
+  ws["G1"].alignment = Alignment(horizontal="right", vertical="top", wrap_text=True)
 
   #the big loop
   for location in locations:
@@ -176,7 +177,7 @@ def write(wb, orders, created_on, update, settings):
         date_string = "Created On:   {}".format(created_on.strftime('%m-%d-%Y'))
         if update:
           date_string += "\nUpdated On:    {}".format(datetime.date.today().strftime('%m-%d-%Y'))
-        ws["I1"] = date_string
+        ws["G1"] = date_string
 
       row_offset += 1
 
