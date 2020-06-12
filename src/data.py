@@ -196,10 +196,6 @@ def write(wb, orders, created_on, update, settings):
           cell = ws.cell(row=excelRow + row_offset, column=excelCol)
           value = orders[location][excelRow-1]['info'][col_name]
           status = orders[location][excelRow-1]['status']
-          
-          # convert q ordered and q received values to integers
-          if col_name in ["Quantity Ordered", "Quantity Received"]:             
-            value = int(value)
 
           # right justify date
           if col_name == "Need-By Date":
