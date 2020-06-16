@@ -11,6 +11,12 @@ TSV_PATH        = settings['download_path']
 SAVE_PATH       = settings['save_path']
 EXCEL_PATH      = settings['excel_path']
 
+#Remove old tsv from downloads folder if it exists
+try:
+    os.remove(TSV_PATH)
+except:
+    pass
+
 #Fetch .tsv file from Acuity supplier portal
 downloading = web.fetchTSV(USERNAME, PASSWORD)
 
@@ -42,10 +48,3 @@ else:
 
     #Open file in excel
     os.system(r'start "{}" "{}"'.format(EXCEL_PATH, SAVE_PATH + excel_file_name))
-
-
-
-#Remove file from downloads folder
-os.remove(TSV_PATH)
-
-

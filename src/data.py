@@ -8,7 +8,8 @@ from openpyxl.styles.colors import Color
 TODAY = datetime.date.today()
 OUTPUT_FILENAME = "\\%s Open Orders.xlsx" % datetime.date.today()
 SHIP_TOs        = ['Fishers', 'Crawfordsville', 'Des Plaines', 'MPF', 'GPF', 'SEAC']
-COLUMN_NAMES    = ["Item Number", "PO Number", "Quantity Ordered", "Quantity Received", "Balance Due", "Need-By Date"]
+COLUMN_NAMES    = ["Item Number", "PO Number", "Quantity Ordered", "Quantity Received", "Balance Due", "Need-By Date", "G", "H", "I"]
+MYSTERY_WIDTH_OFFSET = .71
 
 style = {
   'fonts': {
@@ -116,6 +117,7 @@ def load_tsv(path):
     
     #trim unnecessary data from each order
     order = {k:v for (k,v) in po.items() if k in COLUMN_NAMES}
+    order.update({"G": None, "H": None, "I": None})
 
     orders[location].append({'info': order, 'status': 'open'})
     po_numbers[order["PO Number"]] = True
@@ -152,12 +154,12 @@ def write(wb, orders, created_on, update, settings):
   locations = sorted(orders.keys())
 
   # set column widths
-  ws.column_dimensions["A"].width = 15.14
-  ws.column_dimensions["B"].width = 10.00
-  ws.column_dimensions["C"].width = 06.75
-  ws.column_dimensions["D"].width = 07.71
-  ws.column_dimensions["E"].width = 08.43
-  ws.column_dimensions["F"].width = 12.29
+  ws.column_dimensions["A"].width = 15.14 + MYSTERY_WIDTH_OFFSET
+  ws.column_dimensions["B"].width = 10.00 + MYSTERY_WIDTH_OFFSET
+  ws.column_dimensions["C"].width = 06.75 + MYSTERY_WIDTH_OFFSET
+  ws.column_dimensions["D"].width = 07.71 + MYSTERY_WIDTH_OFFSET
+  ws.column_dimensions["E"].width = 08.43 + MYSTERY_WIDTH_OFFSET
+  ws.column_dimensions["F"].width = 12.29 + MYSTERY_WIDTH_OFFSET
 
   ws.merge_cells('G1:I1')
   ws["G1"].alignment = Alignment(horizontal="right", vertical="top", wrap_text=True)
@@ -183,12 +185,6 @@ def write(wb, orders, created_on, update, settings):
 
       for excelRow in range(1, sz+1):
 
-        # add gridlines to the right of the page for handwritten notes on print out
-        if settings['gridlines']:
-          ws.cell(row=excelRow + row_offset, column=7).border = style['borders']['underline']
-          ws.cell(row=excelRow + row_offset, column=8).border = style['borders']['mid']
-          ws.cell(row=excelRow + row_offset, column=9).border = style['borders']['underline']
-
         #begin writing the business data to sheet   
         for excelCol in range(1, len(COLUMN_NAMES) + 1):
 
@@ -205,6 +201,12 @@ def write(wb, orders, created_on, update, settings):
           if col_name == "Balance Due":
             value = "=if(C{row}-D{row}<0, 0, C{row}-D{row})".format(row=excelRow + row_offset)
 
+          if col_name in ["Quantity Ordered", "Quantity Received"]:
+            try:
+              value = int(value)
+            except:
+              pass
+
           # add horizontal gridlines
           if settings['gridlines']:
             cell.border = style['borders']['underline']
@@ -214,6 +216,12 @@ def write(wb, orders, created_on, update, settings):
           cell.fill = style[status]['fill']
           
           cell.value = value
+          
+        # add gridlines to the right of the page for handwritten notes on print out
+        if settings['gridlines']:
+          ws.cell(row=excelRow + row_offset, column=7).border = style['borders']['underline']
+          ws.cell(row=excelRow + row_offset, column=8).border = style['borders']['mid']
+          ws.cell(row=excelRow + row_offset, column=9).border = style['borders']['underline']
 
       row_offset += sz + 1
 
