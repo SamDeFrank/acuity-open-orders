@@ -27,8 +27,10 @@ file_to_update = utils.current_report(SAVE_PATH)
 
 
 if file_to_update != 0:
-    #update current file here
+    print("Updating most recent order report.\n")
     excel_file_name = data.update(TSV_PATH, file_to_update, settings)
+    print("Done!\n")
+    print("Opening new file with Excel")
     
     os.system(r'start "{}" "{}"'.format(EXCEL_PATH, excel_file_name))
 else:
