@@ -12,10 +12,8 @@ SAVE_PATH       = settings['save_path']
 EXCEL_PATH      = settings['excel_path']
 
 #Remove old tsv from downloads folder if it exists
-try:
+if os.path.isfile(TSV_PATH):
     os.remove(TSV_PATH)
-except:
-    pass
 
 #Fetch .tsv file from Acuity supplier portal
 downloading = web.fetchTSV(USERNAME, PASSWORD)
@@ -29,6 +27,7 @@ while downloading:
     else:
         pass
 
+#determine if there is a recent file to update, or a new file needs to be generated.
 file_to_update = utils.current_report(SAVE_PATH)
 
 
@@ -40,7 +39,6 @@ if file_to_update != 0:
     
     os.system(r'start "{}" "{}"'.format(EXCEL_PATH, excel_file_name))
 else:
-    # Parse data from tsv file into excel format
     print("Parsing data into Excel file\n")
     excel_file_name = data.create(TSV_PATH, SAVE_PATH, settings)
     print("Done!\n")

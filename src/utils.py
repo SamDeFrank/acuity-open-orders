@@ -15,6 +15,7 @@ def load_user_settings():
   return settings
 
 def current_report(save_path):
+  """determines if a file was created since the most recent monday. returns the path if it exists, returns 0 if it doesnt"""
   today = datetime.date.today()
   last_monday = today - datetime.timedelta(days=today.weekday())
 

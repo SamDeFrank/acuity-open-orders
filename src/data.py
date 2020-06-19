@@ -28,7 +28,7 @@ style = {
     'font' : Font(strike=True) 
   },
   'recent': {
-    'fill': PatternFill(patternType="solid", fgColor=Color(theme=0,tint=-0.3499862666707358, type='theme'),bgColor=Color(indexed=64,tint=0.0,type='indexed')),
+    'fill': PatternFill(patternType="solid", fgColor=Color(theme=0,tint=-0.249977111117893, type='theme'),bgColor=Color(indexed=64,tint=0.0,type='indexed')),
     'font': Font()
   },
   'open': {
