@@ -154,7 +154,7 @@ def write(wb, orders, created_on, update, settings):
   locations = sorted(orders.keys())
 
   # set column widths
-  ws.column_dimensions["A"].width = 15.14 + MYSTERY_WIDTH_OFFSET
+  ws.column_dimensions["A"].width = 14.00 + MYSTERY_WIDTH_OFFSET
   ws.column_dimensions["B"].width = 10.00 + MYSTERY_WIDTH_OFFSET
   ws.column_dimensions["C"].width = 06.75 + MYSTERY_WIDTH_OFFSET
   ws.column_dimensions["D"].width = 07.71 + MYSTERY_WIDTH_OFFSET
