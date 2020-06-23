@@ -156,10 +156,10 @@ def write(wb, orders, created_on, update, settings):
   # set column widths
   ws.column_dimensions["A"].width = 14.00 + MYSTERY_WIDTH_OFFSET
   ws.column_dimensions["B"].width = 10.00 + MYSTERY_WIDTH_OFFSET
-  ws.column_dimensions["C"].width = 06.75 + MYSTERY_WIDTH_OFFSET
-  ws.column_dimensions["D"].width = 07.71 + MYSTERY_WIDTH_OFFSET
-  ws.column_dimensions["E"].width = 08.43 + MYSTERY_WIDTH_OFFSET
-  ws.column_dimensions["F"].width = 12.29 + MYSTERY_WIDTH_OFFSET
+  ws.column_dimensions["C"].width = 06.71 + MYSTERY_WIDTH_OFFSET
+  ws.column_dimensions["D"].width = 07.00 + MYSTERY_WIDTH_OFFSET
+  ws.column_dimensions["E"].width = 08.00 + MYSTERY_WIDTH_OFFSET
+  ws.column_dimensions["F"].width = 11.00 + MYSTERY_WIDTH_OFFSET
 
   ws.merge_cells('G1:I1')
   ws["G1"].alignment = Alignment(horizontal="right", vertical="top", wrap_text=True)
