@@ -61,19 +61,27 @@ def status(fill, font):
     return "open"
 
 def compare(existing_orders, new_orders):
-  updated_orders = existing_orders['orders']
+  updated_orders = existing_orders['orders'].copy()
   locations_to_sort = []
 
-  #check for orders to close:
-  for ship_to in existing_orders['orders']:
-    for po in existing_orders['orders'][ship_to]:
-      if po['info']['PO Number'] not in new_orders['po_numbers']:
+  #check for orders to update or close:
+  for ship_to in updated_orders['orders']:
+    for po in updated_orders['orders'][ship_to]:
+      order_id = po['info']['id']
+      if order_id not in new_orders['ids']:
         po['status'] = 'closed'
+      else:
+        info = {
+          "Quantity Ordered": new_orders["ids"]["id"]["Quantity Ordered"],
+          "Quantity Received": new_orders["ids"]["id"]["Quantity Received"],
+          "Need-By Date": new_orders["ids"]["id"]["Need-By Date"]
+        }
+        po['info'].update(info)
   
   #check for new orders to add
   for ship_to in new_orders['orders']:
     for po in new_orders['orders'][ship_to]:
-      if po['info']['PO Number'] not in existing_orders['po_numbers']:
+      if po['info']['id'] not in existing_orders['ids']:
         if ship_to not in locations_to_sort:
           locations_to_sort.append(ship_to)
         po['status'] = "new"
@@ -88,7 +96,7 @@ def compare(existing_orders, new_orders):
 def load_tsv(path):
   data_list = []
   orders = {i: [] for i in SHIP_TOs}
-  po_numbers = {}
+  order_ids = {}
   
   with open(path, 'r') as file:
     raw_data_list = [row.split("\t") for row in file.read().split("\t\n")] 
@@ -106,30 +114,30 @@ def load_tsv(path):
   for po in order_list:
     
     #if the date string is not empty, reformat it so it's easier to read on the excel sheet   
-    if len(po['Need-By Date']) > 0:
-      po['Need-By Date'] = datetime.datetime.strptime(po['Need-By Date'].split(" ")[0], '%d-%b-%Y').date().strftime('%m-%d-%Y')
+    if len(po["Need-By Date"]) > 0:
+      po["Need-By Date"] = datetime.datetime.strptime(po["Need-By Date"].split(" ")[0], '%d-%b-%Y').date().strftime('%m-%d-%Y')
 
-    # po['Balance Due'] = int(po['Quantity Ordered']) - int(po['Quantity Received'])
-    po['Balance Due'] = None
+    po["Balance Due"] = None
 
     #resolve ship-to location based on whats in the data. eg: both 'P1-CRAWFORDSVILLE' and 'P2-CRAWFORDSVILLE' are grouped under 'Crawfordsville'
-    location = [loc for loc in SHIP_TOs if loc.upper() in po['Ship-To Location'].upper()][0]
+    location = [loc for loc in SHIP_TOs if loc.upper() in po["Ship-To Location"].upper()][0]
     
     #trim unnecessary data from each order
     order = {k:v for (k,v) in po.items() if k in COLUMN_NAMES}
-    order.update({"G": None, "H": None, "I": None})
+    order.update({"G": None, "H": None, "I": None, "id": order["PO Number"] + order["Item Number"]})
 
-    orders[location].append({'info': order, 'status': 'open'})
-    po_numbers[order["PO Number"]] = True
+    orders[location].append({"info": order, "status": "open"})
+    order_ids[order["id"]] = order
 
-  return {'orders': orders, 'po_numbers': po_numbers}
+
+  return {"orders": orders, "ids": order_ids}
 
 def load_xlsx(path):
   wb = load_workbook(filename = path)
   ws = wb.active
   location = ""
   orders = {i: [] for i in SHIP_TOs}
-  po_numbers = {}
+  order_ids = {}
   
   for row in ws:
 
@@ -142,11 +150,12 @@ def load_xlsx(path):
 
     values = [cell.value for cell in row]
     order = dict(zip(COLUMN_NAMES, values))
+    order.update({"id": order["PO Number"] + order["Item Number"]})
 
-    orders[location].append({'info': order, 'status': status(row[0].fill, row[0].font)})
-    po_numbers[order["PO Number"]] = True
+    orders[location].append({"info": order, "status": status(row[0].fill, row[0].font)})
+    order_ids[order["id"]] = order
   
-  return {'orders': orders, 'po_numbers': po_numbers}
+  return {"orders": orders, "ids": order_ids}
 
 def write(wb, orders, created_on, update, settings):
   ws = wb.active
@@ -161,7 +170,7 @@ def write(wb, orders, created_on, update, settings):
   ws.column_dimensions["E"].width = 08.00 + MYSTERY_WIDTH_OFFSET
   ws.column_dimensions["F"].width = 11.00 + MYSTERY_WIDTH_OFFSET
 
-  ws.merge_cells('G1:I1')
+  ws.merge_cells("G1:I1")
   ws["G1"].alignment = Alignment(horizontal="right", vertical="top", wrap_text=True)
 
   #the big loop
