@@ -65,16 +65,16 @@ def compare(existing_orders, new_orders):
   locations_to_sort = []
 
   #check for orders to update or close:
-  for ship_to in updated_orders['orders']:
-    for po in updated_orders['orders'][ship_to]:
+  for ship_to in updated_orders:
+    for po in updated_orders[ship_to]:
       order_id = po['info']['id']
       if order_id not in new_orders['ids']:
         po['status'] = 'closed'
       else:
         info = {
-          "Quantity Ordered": new_orders["ids"]["id"]["Quantity Ordered"],
-          "Quantity Received": new_orders["ids"]["id"]["Quantity Received"],
-          "Need-By Date": new_orders["ids"]["id"]["Need-By Date"]
+          "Quantity Ordered": new_orders["ids"][order_id]["Quantity Ordered"],
+          "Quantity Received": new_orders["ids"][order_id]["Quantity Received"],
+          "Need-By Date": new_orders["ids"][order_id]["Need-By Date"]
         }
         po['info'].update(info)
   
