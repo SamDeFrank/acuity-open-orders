@@ -6,7 +6,7 @@ from openpyxl.styles.borders import Border, Side
 from openpyxl.styles.colors import Color
 
 TODAY = datetime.date.today()
-OUTPUT_FILENAME = "\\%s Open Orders.xlsx" % datetime.date.today()
+OUTPUT_FILENAME = "\\%s Open Orders.xlsx" % TODAY
 SHIP_TOs        = ['Fishers', 'Crawfordsville', 'Des Plaines', 'MPF', 'GPF', 'SEAC']
 COLUMN_NAMES    = ["Item Number", "PO Number", "Quantity Ordered", "Quantity Received", "Balance Due", "Need-By Date", "G", "H", "I"]
 MYSTERY_WIDTH_OFFSET = .71
@@ -132,9 +132,8 @@ def load_tsv(path):
 
   return {"orders": orders, "ids": order_ids}
 
-def load_xlsx(path):
-  wb = load_workbook(filename = path)
-  ws = wb.active
+def load_xlsx(ws):
+  
   location = ""
   orders = {i: [] for i in SHIP_TOs}
   order_ids = {}
@@ -157,8 +156,7 @@ def load_xlsx(path):
   
   return {"orders": orders, "ids": order_ids}
 
-def write(wb, orders, created_on, update, settings):
-  ws = wb.active
+def write(ws, orders, created_on, update, settings):
   row_offset = 0
   locations = sorted(orders.keys())
 
@@ -187,7 +185,7 @@ def write(wb, orders, created_on, update, settings):
       if row == 1:
         date_string = "Created On:   {}".format(created_on.strftime('%m-%d-%Y'))
         if update:
-          date_string += "\nUpdated On:    {}".format(datetime.date.today().strftime('%m-%d-%Y'))
+          date_string += "\nUpdated On:   {}".format(datetime.date.today().strftime('%m-%d-%Y'))
         ws["G1"] = date_string
 
       row_offset += 1
@@ -247,18 +245,20 @@ def create(tsv_path, save_path, settings):
 
 def update(tsv_path, xlsx_path, settings):
 
-  created_on = datetime.datetime.strptime(xlsx_path.split("\\")[-1].split(" ")[0], "%Y-%m-%d").date()
+  wb = load_workbook(filename=xlsx_path)
+  ws = wb[wb.sheetnames[0]]
+  ws_new = wb.create_sheet(title="Orders")
 
+  existing_orders = load_xlsx(ws)
   new_orders = load_tsv(tsv_path)
-  existing_orders = load_xlsx(xlsx_path)
-
-  os.remove(xlsx_path)
 
   updated_orders = compare(existing_orders, new_orders)
 
-  wb = Workbook()
-  write(wb, updated_orders, created_on, True, settings)
+  created_on = datetime.datetime.strptime(xlsx_path.split("\\")[-1].split(" ")[0], "%Y-%m-%d").date() #need to delete
 
+  write(ws_new, updated_orders, created_on, True, settings)
+
+  wb.remove(ws)
   wb.save('{}'.format(xlsx_path))
 
   return xlsx_path

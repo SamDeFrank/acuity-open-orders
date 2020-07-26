@@ -19,8 +19,8 @@ def fetchTSV(username, password):
   submit_button = driver.find_element_by_xpath("//*[@id=\"ButtonBox\"]/button[1]")
   submit_button.click()
 
-  print('Navigating website\n')
   #Wait for 'Delivery Schedule' link to exist, then click it.
+  print('Navigating website\n')
   delivery_schedule = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.ID, "PosHpgGenericUrl3")))
   delivery_schedule.click()
   
