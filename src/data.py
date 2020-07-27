@@ -93,6 +93,24 @@ def compare(existing_orders, new_orders):
   
   return updated_orders
 
+def transfer_user_notes(old_orders, new_orders):
+
+  updated_orders = new_orders['orders'].copy()
+
+  for ship_to in updated_orders:
+    for po in updated_orders[ship_to]:
+      order_id = po['info']['id']
+      if order_id in old_orders['ids']:
+        info = {
+          'G': old_orders['ids'][order_id]['G'],
+          'H': old_orders['ids'][order_id]['H'],
+          'I': old_orders['ids'][order_id]['I']
+        }
+        po['info'].update(info)
+  
+  return updated_orders
+        
+
 def load_tsv(path):
   data_list = []
   orders = {i: [] for i in SHIP_TOs}
@@ -234,10 +252,19 @@ def write(ws, orders, created_on, update, settings):
 
 def create(tsv_path, save_path, settings):
 
-  orders = load_tsv(tsv_path)
+  with os.scandir(save_path) as files:
+    most_recent_file = sorted(list(files), key=lambda x: x.stat().st_ctime_ns)[0]
+    recent_wb = load_workbook(most_recent_file.path, read_only=True)
+    recent_ws = recent_wb.active
+
+  old_orders = load_xlsx(recent_ws)
+  new_orders = load_tsv(tsv_path)
+
+  orders = transfer_user_notes(old_orders, new_orders)
 
   wb = Workbook()
-  write(wb, orders['orders'], TODAY, False, settings)
+  ws = wb.active
+  write(ws, orders, TODAY, False, settings)
 
   wb.save('{}{}'.format(save_path, OUTPUT_FILENAME))
 
