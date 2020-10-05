@@ -107,7 +107,6 @@ def transfer_user_notes(old_orders, new_orders):
           'I': old_orders['ids'][order_id]['I']
         }
         po['info'].update(info)
-  
   return updated_orders
         
 
@@ -253,7 +252,7 @@ def write(ws, orders, created_on, update, settings):
 def create(tsv_path, save_path, settings):
 
   with os.scandir(save_path) as files:
-    most_recent_file = sorted(list(files), key=lambda x: x.stat().st_ctime_ns)[0]
+    most_recent_file = sorted(list(files), key=lambda x: x.stat().st_ctime_ns)[-1]
     recent_wb = load_workbook(most_recent_file.path, read_only=True)
     recent_ws = recent_wb.active
 
