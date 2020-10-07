@@ -250,16 +250,21 @@ def write(ws, orders, created_on, update, settings):
       row_offset += sz + 1
 
 def create(tsv_path, save_path, settings):
-
-  with os.scandir(save_path) as files:
-    most_recent_file = sorted(list(files), key=lambda x: x.stat().st_ctime_ns)[-1]
-    recent_wb = load_workbook(most_recent_file.path, read_only=True)
-    recent_ws = recent_wb.active
-
-  old_orders = load_xlsx(recent_ws)
+  #parse tsv into python
   new_orders = load_tsv(tsv_path)
 
-  orders = transfer_user_notes(old_orders, new_orders)
+  #sort all past reports by creation date
+  with os.scandir(save_path) as files:
+    file_list = sorted(list(files), key=lambda x: x.stat().st_ctime_ns)
+
+  #ensure existence of past report, then grab user notes from it
+  if len(file_list) > 0:
+    recent_wb = load_workbook(file_list[-1].path, read_only=True)
+    old_orders = load_xlsx(recent_wb.active)
+    orders = transfer_user_notes(old_orders, new_orders)
+  #if no past reports exist, continue without updating
+  else:
+    orders = new_orders['orders']
 
   wb = Workbook()
   ws = wb.active
