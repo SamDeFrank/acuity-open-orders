@@ -1,15 +1,24 @@
+from update import update
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import SessionNotCreatedException
 
-def fetchTSV(username, password):
-  driver = webdriver.Chrome()
+def fetchTSV(username, password, download_path, webDriver_path):
+  try:
+    driver = webdriver.Chrome()
+  except (SessionNotCreatedException) as ex:
+    print("Chrome webDriver out of date. Updating now.")
+    update.update_webDriver(download_path, webDriver_path)
+    driver = webdriver.Chrome()
+
+
   driver.get("https://isupplier12.acuitybrandslighting.net/OA_HTML/AppsLocalLogin.jsp")
 
   #login
-  print('Logging in\n')
+  print('Logging in')
   user = driver.find_element_by_name("usernameField")
   pswrd = driver.find_element_by_name("passwordField")
   user.clear()
@@ -20,7 +29,7 @@ def fetchTSV(username, password):
   submit_button.click()
 
   #Wait for 'Delivery Schedule' link to exist, then click it.
-  print('Navigating website\n')
+  print('Navigating website')
   delivery_schedule = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.ID, "PosHpgGenericUrl3")))
   delivery_schedule.click()
   
@@ -32,7 +41,7 @@ def fetchTSV(username, password):
   table_row = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '//*[@id="DelivSchedTblRN:Content"]/tbody/tr[3]')))
   
   #Click 'export' button.
-  print('Requesting new tsv file\n')
+  print('Requesting new tsv file')
   driver.find_element_by_id("ExportBtn").click()
 
   return True
