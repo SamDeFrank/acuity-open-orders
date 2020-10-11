@@ -232,9 +232,7 @@ def write(ws, orders, created_on, update, settings):
               pass
 
           # add horizontal gridlines
-          if settings['gridlines']:
-            cell.border = style['borders']['underline']
-
+          cell.border = style['borders']['underline']
 
           cell.font = style[status]['font']
           cell.fill = style[status]['fill']
@@ -242,10 +240,9 @@ def write(ws, orders, created_on, update, settings):
           cell.value = value
           
         # add gridlines to the right of the page for handwritten notes on print out
-        if settings['gridlines']:
-          ws.cell(row=excelRow + row_offset, column=7).border = style['borders']['underline']
-          ws.cell(row=excelRow + row_offset, column=8).border = style['borders']['mid']
-          ws.cell(row=excelRow + row_offset, column=9).border = style['borders']['underline']
+        ws.cell(row=excelRow + row_offset, column=7).border = style['borders']['underline']
+        ws.cell(row=excelRow + row_offset, column=8).border = style['borders']['mid']
+        ws.cell(row=excelRow + row_offset, column=9).border = style['borders']['underline']
 
       row_offset += sz + 1
 
