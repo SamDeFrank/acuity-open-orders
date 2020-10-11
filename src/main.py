@@ -7,9 +7,9 @@ settings = utils.load_user_settings()
 
 USERNAME        = settings['username']
 PASSWORD        = settings['password']
-TSV_PATH        = settings['download_path']
 SAVE_PATH       = settings['save_path']
 EXCEL_PATH      = settings['excel_path']
+TSV_PATH        = utils.get_download_path() + "export.tsv"
 
 #Remove old tsv from downloads folder if it exists
 if os.path.isfile(TSV_PATH):
