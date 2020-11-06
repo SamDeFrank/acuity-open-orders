@@ -25,7 +25,7 @@ async def get_chrome_version():
       if "HKEY_LOCAL_MACHINE" in x[0]:
         local_machine.update({x[1]: x[3]})
       else:
-        chrome_info['current_user'][x[1]] = x[3]
+        current_user.update({x[1]: x[3]})
 
     if 'pv' in current_user:
       return current_user['pv']
