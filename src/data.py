@@ -1,9 +1,11 @@
 import os
 import datetime
 from openpyxl import Workbook, load_workbook
-from openpyxl.styles import Font, Alignment, PatternFill
-from openpyxl.styles.borders import Border, Side
+from openpyxl.styles import Font, Alignment, PatternFill, Color, Border
 from openpyxl.styles.colors import Color
+from openpyxl.styles.borders import Border, Side
+from openpyxl.styles.differential import DifferentialStyle
+from openpyxl.formatting.rule import ColorScaleRule, CellIsRule, FormulaRule, Rule
 
 TODAY = datetime.date.today()
 OUTPUT_FILENAME = "\\%s Open Orders.xlsx" % TODAY
@@ -34,6 +36,9 @@ style = {
   'open': {
     'fill' : PatternFill(),
     'font' : Font()
+  },
+  'found':{
+    'fill': PatternFill(bgColor="00B0F0")
   }
 }
 
@@ -175,6 +180,7 @@ def load_xlsx(ws):
 
 def write(ws, orders, created_on, update, settings):
   row_offset = 0
+  max_row = 0
   locations = sorted(orders.keys())
 
   # set column widths
@@ -184,9 +190,17 @@ def write(ws, orders, created_on, update, settings):
   ws.column_dimensions["D"].width = 07.00 + MYSTERY_WIDTH_OFFSET
   ws.column_dimensions["E"].width = 08.00 + MYSTERY_WIDTH_OFFSET
   ws.column_dimensions["F"].width = 11.00 + MYSTERY_WIDTH_OFFSET
+  ws.column_dimensions["J"].width = 01.57 + MYSTERY_WIDTH_OFFSET
+  ws.column_dimensions["L"].width = 13.14 + MYSTERY_WIDTH_OFFSET
 
+  #format 'created / updated' and 'search' cells
   ws.merge_cells("G1:I1")
   ws["G1"].alignment = Alignment(horizontal="right", vertical="top", wrap_text=True)
+
+  ws["K2"] = "Search:"
+  ws["K2"].alignment = Alignment(horizontal="right")
+
+  ws["L2"].fill = style['recent']['fill']
 
   #the big loop
   for location in locations:
@@ -207,7 +221,7 @@ def write(ws, orders, created_on, update, settings):
 
       row_offset += 1
 
-      for excelRow in range(1, sz+1):
+      for excelRow in range(1, sz+1): 
 
         #begin writing the business data to sheet   
         for excelCol in range(1, len(COLUMN_NAMES) + 1):
@@ -244,7 +258,21 @@ def write(ws, orders, created_on, update, settings):
         ws.cell(row=excelRow + row_offset, column=8).border = style['borders']['mid']
         ws.cell(row=excelRow + row_offset, column=9).border = style['borders']['underline']
 
+      max_row = excelRow + row_offset
       row_offset += sz + 1
+      
+  
+  #create conditional formatting for search results
+  dxf = DifferentialStyle(fill=style['found']['fill'])
+
+  r1 = Rule(type="expression", stopIfTrue=True)
+  r1.formula = ['isblank($L$2)']
+  ws.conditional_formatting.add(f"A1:F{max_row}".format(), r1)
+
+  r2 = Rule(type="expression", dxf=dxf, stopIfTrue=False)
+  r2.formula = ['isnumber(search($L$2, $A1))']
+  ws.conditional_formatting.add(f"A1:F{max_row}".format(), r2)
+
 
 def create(tsv_path, save_path, settings):
   #parse tsv into python
