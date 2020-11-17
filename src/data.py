@@ -260,7 +260,8 @@ def write(ws, orders, created_on, update, settings):
 
       max_row = excelRow + row_offset
       row_offset += sz + 1
-      
+
+  ws.print_area = f'A1:I{max_row}'   
   
   #create conditional formatting for search results
   dxf = DifferentialStyle(fill=style['found']['fill'])
