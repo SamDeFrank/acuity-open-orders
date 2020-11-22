@@ -6,20 +6,23 @@ filename = os.path.join(dirname, 'settings.txt')
 
 def load_user_settings():
   """Load user settings from .txt file into a python dict"""
+
   with open(filename, 'r') as file:
     settings = dict([x.split(":", 1) for x in file.read().strip().split("\n")])
 
-    for k in settings:
-     settings[k] = settings[k].strip()
+  settings = { k: v.strip() for k, v in settings.items() }
 
   return settings
 
-def current_report(save_path):
+
+def current_report(path):
   """determines if a file was created since the most recent monday. returns the path if it exists, returns 0 if it doesn't"""
-  path = save_path + "\\"
   today = datetime.today()
 
-  files = sorted(os.scandir(path), key=lambda x: os.stat(path + x.name).st_ctime)
+  def key(x):
+    return os.stat(os.path.join(path, x.name)).st_ctime
+
+  files = sorted(os.scandir(path), key=key)
 
   most_recent = datetime.fromtimestamp(os.stat(path + files[-1].name).st_ctime)
 
