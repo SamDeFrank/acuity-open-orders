@@ -1,5 +1,5 @@
+from datetime import datetime
 import os
-import datetime
 
 dirname = os.path.dirname(__file__)
 filename = os.path.join(dirname, 'settings.txt')
@@ -15,21 +15,21 @@ def load_user_settings():
   return settings
 
 def current_report(save_path):
-  """determines if a file was created since the most recent monday. returns the path if it exists, returns 0 if it doesnt"""
-  today = datetime.date.today()
-  last_monday = today - datetime.timedelta(days=today.weekday())
+  """determines if a file was created since the most recent monday. returns the path if it exists, returns 0 if it doesn't"""
+  path = save_path + "\\"
+  today = datetime.today()
 
-  delta = today - last_monday
+  files = sorted(os.scandir(path), key=lambda x: os.stat(path + x.name).st_ctime)
 
-  date_list = [today - datetime.timedelta(days=x) for x in range(delta.days + 1)]
-  filename_list = [f"\\{x.strftime('%Y-%m-%d')} Open Orders.xlsx" for x in date_list]
+  most_recent = datetime.fromtimestamp(os.stat(path + files[-1].name).st_ctime)
 
-  for k in filename_list:
-    path = save_path + k
-    if os.path.isfile(path):
-      return path
-  
-  return 0
+  delta = today - most_recent
+
+  if delta.days < today.weekday():
+    return os.path.join(save_path, files[-1])
+  else:
+    return 0
+
 
 def get_download_path():
   """Returns the default downloads path for linux or windows"""
