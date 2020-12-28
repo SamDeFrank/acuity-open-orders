@@ -24,7 +24,10 @@ def current_report(path):
 
   files = sorted(os.scandir(path), key=key)
 
-  most_recent = datetime.fromtimestamp(os.stat(path + files[-1].name).st_ctime)
+  if len(files) > 0:
+    most_recent = datetime.fromtimestamp(os.stat(path + files[-1].name).st_ctime)
+  else:
+    return 0
 
   delta = today - most_recent
 
