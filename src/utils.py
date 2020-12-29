@@ -31,7 +31,7 @@ def current_report(path):
 
   delta = today - most_recent
 
-  if delta.days < today.weekday():
+  if delta.days <= today.weekday():
     return os.path.join(path, files[-1])
   else:
     return 0
