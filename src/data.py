@@ -142,7 +142,10 @@ def load_tsv(path):
     po["Balance Due"] = None
 
     #resolve ship-to location based on whats in the data. eg: both 'P1-CRAWFORDSVILLE' and 'P2-CRAWFORDSVILLE' are grouped under 'Crawfordsville'
-    location = [loc for loc in SHIP_TOs if loc.upper() in po["Ship-To Location"].upper()][0]
+    try:
+      location = [loc for loc in SHIP_TOs if loc.upper() in po["Ship-To Location"].upper()][0]
+    except:
+      location = po["Ship-To Location"]
     
     #trim unnecessary data from each order
     order = {k:v for (k,v) in po.items() if k in COLUMN_NAMES}
