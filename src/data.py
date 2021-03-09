@@ -9,7 +9,7 @@ from openpyxl.formatting.rule import ColorScaleRule, CellIsRule, FormulaRule, Ru
 
 TODAY = datetime.date.today()
 OUTPUT_FILENAME = "\\%s Open Orders.xlsx" % TODAY
-SHIP_TOs        = ['Fishers', 'Crawfordsville', 'Des Plaines', 'MPF', 'GPF', 'SEAC']
+SHIP_TOs        = ['Fishers', 'Crawfordsville', 'Des Plaines', 'MEX', 'MPF', 'GPF', 'SEAC']
 COLUMN_NAMES    = ["Item Number", "PO Number", "Quantity Ordered", "Quantity Received", "Balance Due", "Need-By Date", "G", "H", "I"]
 MYSTERY_WIDTH_OFFSET = .71
 
