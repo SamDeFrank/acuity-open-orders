@@ -9,7 +9,7 @@ from openpyxl.formatting.rule import ColorScaleRule, CellIsRule, FormulaRule, Ru
 
 TODAY = datetime.date.today()
 OUTPUT_FILENAME = "\\%s Open Orders.xlsx" % TODAY
-SHIP_TOs        = ['Fishers', 'Crawfordsville', 'Des Plaines', 'MEX', 'MPF', 'GPF', 'SEAC']
+SHIP_TOs        = ['Fishers', 'Crawfordsville', 'Des Plaines', 'MPF', 'Mex', 'GPF', 'SEAC']
 COLUMN_NAMES    = ["Item Number", "PO Number", "Quantity Ordered", "Quantity Received", "Balance Due", "Need-By Date", "G", "H", "I"]
 MYSTERY_WIDTH_OFFSET = .71
 
@@ -174,7 +174,7 @@ def load_xlsx(ws):
 
     values = [cell.value for cell in row]
     order = dict(zip(COLUMN_NAMES, values))
-    order.update({"id": order["PO Number"] + order["Item Number"]})
+    order.update({"id": str(order["PO Number"]) + order["Item Number"]})
 
     orders[location].append({"info": order, "status": status(row[0].fill, row[0].font)})
     order_ids[order["id"]] = order
